@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './index.css';
 import vid from './assets/bg2.mp4';
 import ChatInterface from './components/chatinterface';
+import approve from './assets/approved.png'
 
 function App() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ function App() {
         .then(data => {
           if (data.length > 0) {
             setUserData(data[data.length - 1]); // Show the latest user data
+            setIsLogged(true);
           }
         })
         .catch(error => console.error("Error fetching user data:", error));
@@ -51,8 +53,8 @@ function App() {
           <button 
     disabled={isLogged} 
     className={`w-60 py-3 rounded-xl shadow-md transition ${
-      isLogged ? "bg-gray-300 text-gray-600 opacity-50 cursor-not-allowed" 
-               : "bg-white text-gray-800 hover:bg-gray-200"
+      isLogged ? "bg-white text-gray-800 hover:bg-gray-200"
+               : "bg-gray-300 text-gray-600 opacity-50 cursor-not-allowed" 
     }`}
   >
     Chat with Strangers
@@ -61,8 +63,8 @@ function App() {
   <button 
     disabled={isLogged} 
     className={`w-60 py-3 rounded-xl shadow-md transition ${
-      isLogged ? "bg-gray-300 text-gray-600 opacity-50 cursor-not-allowed" 
-               : "bg-white text-gray-800 hover:bg-gray-200"
+      isLogged ? "bg-white text-gray-800 hover:bg-gray-200"
+               : "bg-gray-300 text-gray-600 opacity-50 cursor-not-allowed" 
     }`}
   >
     Connect with a Friend
@@ -71,8 +73,8 @@ function App() {
   <button 
     disabled={isLogged} 
     className={`w-60 py-3 rounded-xl shadow-md transition ${
-      isLogged ? "bg-gray-300 text-gray-600 opacity-50 cursor-not-allowed" 
-               : "bg-white text-gray-800 hover:bg-gray-200"
+      isLogged ? "bg-white text-gray-800 hover:bg-gray-200"
+               : "bg-gray-300 text-gray-600 opacity-50 cursor-not-allowed" 
     }`}
   >
     Be Anonymous
@@ -109,6 +111,9 @@ function App() {
                     <p className="text-xl">Name: {isLogged?userData.name:<p className='text-yellow-100'>UserName</p>}</p>
                     <p className="text-xl">Registration Number: {isLogged?userData.registrationNumber:<p className='text-yellow-100'>Reg No.</p>}</p>
                   </div>
+                  {isLogged?(<div>
+                   <img src={approve} alt="Approval Icon" />
+                  </div>):""}
               
               </div>
             
@@ -125,7 +130,7 @@ function App() {
       </div>
 
       {/* Chat Interface Section */}
-      <div className="w-full h-full flex justify-center items-center bg-white relative overflow-hidden">
+      {isLogged?(<div className="w-full h-full flex justify-center items-center bg-white relative overflow-hidden">
         <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
@@ -141,7 +146,7 @@ function App() {
         <div className="w-100 h-full bg-gray-700 rounded-xl overflow-hidden relative shadow-lg z-10">
           <ChatInterface />
         </div>
-      </div>
+      </div>):""}
     </>
   );
 }
