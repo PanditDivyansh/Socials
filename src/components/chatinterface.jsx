@@ -1,33 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
+import axios from 'axios';
 import '../index.css';
-import vid from "../assets/bg2.mp4"
 
 function ChatInterface() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const from = '24MCA0223'; // replace with dynamic user in production
+  const to = '24MCA0251';   // replace with dynamic recipient in production
+
+  useEffect(() => {
+    // Fetch messages on component mount
+    axios.post('http://localhost:4000/get-chats', { from, to })
+      .then(res => {
+        setMessages(res.data); // res.data is an array of message objects
+      })
+      .catch(err => {
+        console.error('Failed to fetch chats', err);
+      });
+  }, []);
 
   const sendMessage = () => {
     if (input.trim() !== '') {
-      setMessages([...messages, { text: input, sender: 'user' }]);
-      setInput('');
-      // Simulating bot response
-      setTimeout(() => {
-        setMessages((prev) => [...prev, { text: 'Hello! How can I help you?', sender: 'bot' }]);
-      }, 1000);
+      const newMsg = {
+        from,
+        to,
+        message: input
+      };
+
+      axios.post('http://localhost:4000/send-chat', newMsg)
+        .then(() => {
+          setMessages([...messages, {
+            from,
+            timestamp: new Date(),
+            message: input
+          }]);
+          setInput('');
+        })
+        .catch(err => {
+          console.error('Failed to send message', err);
+        });
     }
   };
 
   return (
-    
-
     <div className="flex flex-col h-screen bg-gray-200">
       {/* Header */}
       <div className="bg-gray-700 text-white text-center py-4 text-xl font-semibold shadow-md">
         The Socials
       </div>
       <div className="bg-gray-500 text-white text-center py-4 text-xl font-semibold shadow-md">
-        Bot*
+        Chat with Bot
       </div>
 
       {/* Chat Box */}
@@ -36,10 +59,10 @@ function ChatInterface() {
           <div
             key={index}
             className={`max-w-xs px-4 py-2 rounded-xl shadow-md ${
-              msg.sender === 'user' ? 'bg-gray-700 text-white self-end' : 'bg-white text-gray-800 self-start'
+              msg.from === from ? 'bg-gray-700 text-white self-end' : 'bg-white text-gray-800 self-start'
             }`}
           >
-            {msg.text}
+            {msg.message}
           </div>
         ))}
       </div>
