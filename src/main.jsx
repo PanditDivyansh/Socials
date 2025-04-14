@@ -3,7 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
 import App from './App';
-import Capture from './capture'
+import Capture from './capture';
+import ForumPage from './ForumPage'; // You'll need to create this file
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -11,7 +12,8 @@ createRoot(document.getElementById('root')).render(
       <Routes>
         <Route path="/" element={<App />} />
         <Route path="/capture" element={<Capture />} />
+        <Route path="/forum" element={<ForumPage />} />
       </Routes>
     </Router>
-  </StrictMode>,
+  </StrictMode>
 );

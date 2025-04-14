@@ -9,6 +9,7 @@ const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const { send } = require('vite');
+const Thread = require('./models/thread');
 
 const app = express();
 app.use(cors({
@@ -125,6 +126,85 @@ app.get('/get-session',(req,res)=>{
     res.send("Not available")
   }
 })
+
+// Get all threads
+app.get('/api/threads', async (req, res) => {
+  try {
+    const threads = await Thread.find().sort({ createdAt: -1 });
+    res.json(threads);
+  } catch (err) {
+    console.error('Error fetching threads:', err);
+    res.status(500).json({ error: 'Failed to fetch threads' });
+  }
+});
+
+// Get a single thread with its replies
+app.get('/api/threads/:id', async (req, res) => {
+  try {
+    const thread = await Thread.findById(req.params.id);
+    if (!thread) {
+      return res.status(404).json({ error: 'Thread not found' });
+    }
+    res.json(thread);
+  } catch (err) {
+    console.error('Error fetching thread:', err);
+    res.status(500).json({ error: 'Failed to fetch thread' });
+  }
+});
+
+// Create a new thread
+app.post('/api/threads', async (req, res) => {
+  try {
+    const { title, content, author } = req.body;
+    const thread = new Thread({
+      title,
+      content,
+      author: author || 'Anonymous'
+    });
+    await thread.save();
+    res.status(201).json(thread);
+  } catch (err) {
+    console.error('Error creating thread:', err);
+    res.status(500).json({ error: 'Failed to create thread' });
+  }
+});
+
+// Add reply to a thread
+app.post('/api/threads/:id/replies', async (req, res) => {
+  try {
+    const thread = await Thread.findById(req.params.id);
+    if (!thread) {
+      return res.status(404).json({ error: 'Thread not found' });
+    }
+    
+    const { content, author } = req.body;
+    thread.replies.push({
+      content,
+      author: author || 'Anonymous'
+    });
+    
+    await thread.save();
+    res.status(201).json(thread);
+  } catch (err) {
+    console.error('Error adding reply:', err);
+    res.status(500).json({ error: 'Failed to add reply' });
+  }
+});
+
+// Get a single thread with its replies
+app.get('/api/threads/:id', async (req, res) => {
+  try {
+    const thread = await Thread.findById(req.params.id);
+    if (!thread) {
+      return res.status(404).json({ error: 'Thread not found' });
+    }
+    res.json(thread);
+  } catch (err) {
+    console.error('Error fetching thread:', err);
+    res.status(500).json({ error: 'Failed to fetch thread' });
+  }
+});
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
