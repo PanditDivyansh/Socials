@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect,useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import vid from './assets/bg2.mp4';
 import './index.css';
@@ -6,6 +6,7 @@ import './index.css';
 function Capture() {
   const videoRef = useRef(null);
   const navigate = useNavigate();
+  const [showAnimation, setShowAnimation] = useState(false);
 
   // Start camera on mount
   useEffect(() => {
@@ -43,15 +44,26 @@ function Capture() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ image: imageData }),
+        credentials: 'include' // 👈 this is the key part
       });
+      
       console.log('Response status:', response.status);
       const data = await response.json();
       console.log('OCR response:', data);
 
       if (data.name && data.registrationNumber) {
         console.log('OCR extraction and storage successful.');
-        // Redirect or update UI as needed
+        
+        setShowAnimation(true);
+
+      // Wait for animation to complete before navigating
+      setTimeout(() => {
         navigate('/');
+      }, 2000); // Adjust time to match animation duration
+    
+        
+
+        
       } else {
         console.error('OCR did not return valid data:', data);
       }
@@ -79,6 +91,14 @@ function Capture() {
       {/* Main Content */}
       <div className="relative z-10 flex flex-col items-center justify-center space-y-6 w-full">
         <h1 className="text-4xl font-bold text-white tracking-wider">Show Your ID</h1>
+
+        {showAnimation && (
+        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-70 z-50">
+          <div className="animate-bounce text-white text-3xl font-bold">
+            ✅ Verified! Redirecting...
+          </div>
+        </div>
+      )}
 
         {/* Camera Box */}
         <div className="w-80 h-80 bg-gray-900 rounded-2xl overflow-hidden shadow-lg border-2 border-white">
